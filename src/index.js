@@ -1,18 +1,36 @@
 import express from "express";
+import cluster from "cluster"
+import os from "os"
 
 import { uploadRouter } from "./routes/upload.routes.js";
 import { updateRouter } from "./routes/update.routes.js";
 import { retryRouter } from "./routes/retry.routes.js";
 
-const app = express();
-app.get("/", (req, res) => {
-      res.json({ status: "ok" });
-});
+const numCPUs = os.cpus().length
 
-app.use(express.json())
+if (cluster.isPrimary) {
+      console.log(`Primary ${process.pid} is running`);
 
-app.use("/api/image", uploadRouter)
-app.use("/api/updates", updateRouter)
-app.use("/api/image/retry", retryRouter)
+      for (let i = 0; i < numCPUs; i++) {
+            cluster.fork()
+      }
 
-app.listen(4000, () => console.log("Server running"));
+      cluster.on("exit", (worker, code, signal) => {
+            console.log(`Worker ${worker.process.pid} died. Restarting...`)
+            cluster.fork()
+      })
+} else {
+      const app = express();
+
+      app.get("/", (req, res) => {
+            res.json({ status: "ok" });
+      });
+
+      app.use(express.json())
+
+      app.use("/api/image", uploadRouter)
+      app.use("/api/updates", updateRouter)
+      app.use("/api/image/retry", retryRouter)
+
+      app.listen(4000, () => console.log(`Worker ${process.pid} started`));
+}
