@@ -22,6 +22,8 @@ if (cluster.isPrimary) {
 } else {
       const app = express();
 
+      const PORT = process.env.PORT || 4000
+
       app.get("/", (req, res) => {
             res.json({ status: "ok" });
       });
@@ -32,5 +34,5 @@ if (cluster.isPrimary) {
       app.use("/api/updates", updateRouter)
       app.use("/api/image/retry", retryRouter)
 
-      app.listen(4000, () => console.log(`Worker ${process.pid} started`));
+      app.listen(PORT, () => console.log(`Worker ${process.pid} started on port ${PORT}`));
 }
