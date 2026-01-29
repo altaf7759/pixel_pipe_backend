@@ -1,6 +1,7 @@
 import express from "express";
 import cluster from "cluster"
 import os from "os"
+import cors from "cors"
 
 import { uploadRouter } from "./routes/upload.routes.js";
 import { updateRouter } from "./routes/update.routes.js";
@@ -23,6 +24,10 @@ if (cluster.isPrimary) {
       const app = express();
 
       const PORT = process.env.PORT || 4000
+
+      app.use(cors({
+            origin: "http://localhost:5173"
+      }))
 
       app.get("/", (req, res) => {
             res.json({ status: "ok" });
