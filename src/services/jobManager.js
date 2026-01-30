@@ -58,6 +58,7 @@ export function runJob(job) {
       worker.on("message", (data) => {
             const payload = {
                   jobId: job.id,
+                  type: job.type,
                   parentJobId: job.parentJobId,
                   status: data.status ?? "completed",
                   image: data.image ?? null
