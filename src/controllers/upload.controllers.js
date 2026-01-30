@@ -1,4 +1,5 @@
 import { createJobs } from "../services/jobManager.js";
+import { jobTypes } from "../utils/jobTypes.js";
 
 export const handleImageUpload = (req, res) => {
       try {
@@ -7,7 +8,7 @@ export const handleImageUpload = (req, res) => {
             }
 
             const parentJobId = createJobs(req.file.buffer)
-            res.status(200).json({ parentJobId })
+            res.status(200).json({ parentJobId, jobCount: jobTypes.length })
       } catch (error) {
             console.log(error)
             res.status(500).json({
